@@ -13,7 +13,6 @@
                                                   (first msg)
                                                   :no-topic))))
 (defn broadcast [msg]
-  (println "boradcast " (first msg))
   (put! message-bus msg))
 
 (defn subscribe-to
