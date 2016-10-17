@@ -33,7 +33,7 @@
 
 (defn whenever
   "returns a closure that takes a call-back-fn which is executed when ever the topic message been broadcasted"
-  [topic _ ]
+  [topic]
   (let [topic-message-recieved? (atom false)]
     (on topic #(reset! topic-message-recieved? true))
     (fn [call-back-fn]
