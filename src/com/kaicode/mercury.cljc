@@ -35,14 +35,14 @@
 (defn whenever
   "returns a closure that takes a call-back-fn which is executed when ever the topic message been broadcasted"
   [topic]
-  (let [topic-message-recieved? (atom false)]
-    (on topic #(reset! topic-message-recieved? true))
+  (let [topic-message (atom nil)]
+    (on topic #(reset! topic-message %))
     (fn [call-back-fn]
-      (if @topic-message-recieved?
-        (call-back-fn)
-        (on topic #(do
-                     (reset! topic-message-recieved? true)
-                     (call-back-fn)))))))
+      (if @topic-message
+        (call-back-fn @topic-message)
+        (on topic (fn [this-topic-message]
+                    (reset! topic-message this-topic-message)
+                    (call-back-fn this-topic-message)))))))
 
 (defn postpone [execute-fn ms]
   (go (<! (async/timeout ms))
