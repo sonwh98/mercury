@@ -17,7 +17,7 @@
 
 (defn subscribe-to
   [topic]
-  (let [channel (chan 10)]
+  (let [channel (chan (async/dropping-buffer 10))]
     (sub message-publication topic channel)
     channel))
 
