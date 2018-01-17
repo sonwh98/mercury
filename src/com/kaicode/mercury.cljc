@@ -3,6 +3,8 @@
   #?(:cljs (:require [cljs.core.async :as async :refer [put! <! >! chan pub sub unsub]]))
   #?(:clj  (:require [clojure.core.async :as async :refer [put! <! >! chan pub sub unsub go go-loop]])))
 
+;#?(:cljs (enable-console-print!))
+
 ;;a message is a vector of the form [topic value]
 ;;the topic can be any value but should be a keyword
 (defonce message-bus (chan 10))
