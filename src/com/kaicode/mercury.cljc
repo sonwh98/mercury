@@ -30,7 +30,8 @@
   (let [topic-chan (subscribe-to topic)]
     (go-loop []
       (call-back-fn (<! topic-chan))
-      (recur))))
+      (recur))
+    topic-chan))
 
 (defn whenever
   "returns a closure that takes a call-back-fn which is executed when ever the topic message been broadcasted"
