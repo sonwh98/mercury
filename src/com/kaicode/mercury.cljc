@@ -1,4 +1,4 @@
-(ns com.kaicode.mercury
+(ns stigmergy.mercury
   #?(:cljs (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
   #?(:cljs (:require [cljs.core.async :as async :refer [put! <! >! chan pub sub unsub]]))
   #?(:clj  (:require [clojure.core.async :as async :refer [put! <! >! chan pub sub unsub go go-loop]])))
