@@ -1,34 +1,30 @@
 (ns stigmergy.mercury
-  #?(:cljs (:require-macros [cljs.core.async.macros :refer [go go-loop]]))
-  #?(:cljs (:require [cljs.core.async :as async :refer [put! <! >! chan pub sub unsub]]))
-  #?(:clj  (:require [clojure.core.async :as async :refer [put! <! >! chan pub sub unsub go go-loop]])))
-
-;#?(:cljs (enable-console-print!))
+  (:require [clojure.core.async :as a :include-macros true]))
 
 ;;a message is a vector of the form [topic value]
 ;;the topic can be any value but should be a keyword
-(defonce message-bus (chan 10))
-(defonce message-publication (pub message-bus (fn [msg]
-                                                (if (vector? msg)
-                                                  (first msg)
-                                                  :no-topic))))
+(defonce message-bus (a/chan 10))
+(defonce message-publication (a/pub message-bus (fn [msg]
+                                                  (if (vector? msg)
+                                                    (first msg)
+                                                    :no-topic))))
 (defn broadcast [msg]
-  (put! message-bus msg))
+  (a/put! message-bus msg))
 
 (defn subscribe-to
   [topic]
-  (let [channel (chan (async/dropping-buffer 10))]
-    (sub message-publication topic channel)
+  (let [channel (a/chan (a/dropping-buffer 10))]
+    (a/sub message-publication topic channel)
     channel))
 
 (defn unsubscribe
   [channel topic]
-  (unsub message-publication topic channel))
+  (a/unsub message-publication topic channel))
 
 (defn on
   [topic call-back-fn]
   (let [topic-chan (subscribe-to topic)]
-    (go-loop []
+    (a/go-loop []
       (call-back-fn (<! topic-chan))
       (recur))
     topic-chan))
@@ -46,5 +42,5 @@
                     (call-back-fn this-topic-message)))))))
 
 (defn postpone [execute-fn ms]
-  (go (<! (async/timeout ms))
-      (execute-fn)))
+  (a/go (<! (a/timeout ms))
+        (execute-fn)))
