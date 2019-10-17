@@ -7,7 +7,7 @@
 (defonce message-publication (a/pub message-bus (fn [msg]
                                                   (if (vector? msg)
                                                     (first msg)
-                                                    :no-topic))))
+                                                    :default))))
 (defn broadcast [msg]
   (a/put! message-bus msg))
 
