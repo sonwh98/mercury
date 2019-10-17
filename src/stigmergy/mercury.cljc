@@ -25,7 +25,7 @@
   [topic call-back-fn]
   (let [topic-chan (subscribe-to topic)]
     (a/go-loop []
-      (call-back-fn (<! topic-chan))
+      (call-back-fn (a/<! topic-chan))
       (recur))
     topic-chan))
 
@@ -42,5 +42,5 @@
                     (call-back-fn this-topic-message)))))))
 
 (defn postpone [execute-fn ms]
-  (a/go (<! (a/timeout ms))
+  (a/go (a/<! (a/timeout ms))
         (execute-fn)))
