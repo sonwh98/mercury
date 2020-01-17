@@ -11,19 +11,23 @@
 (defn broadcast [msg]
   (a/put! message-bus msg))
 
-(defn subscribe-to
-  [topic]
-  (let [channel (a/chan (a/dropping-buffer 10))]
-    (a/sub message-publication topic channel)
-    channel))
-
 (defn unsubscribe
   [channel topic]
   (a/unsub message-publication topic channel))
 
+(defn subscribe-to
+  [topic]
+  (let [channel (a/chan (a/dropping-buffer 10))
+        kill-channel (a/chan 1)]
+    (a/sub message-publication topic channel)
+    (a/go
+      (a/<! kill-channel)
+      (unsubscribe channel topic))
+    [channel kill-channel]))
+
 (defn on
   [topic call-back-fn]
-  (let [topic-chan (subscribe-to topic)]
+  (let [[topic-chan kill-channel] (subscribe-to topic)]
     (a/go-loop []
       (call-back-fn (a/<! topic-chan))
       (recur))
