@@ -39,8 +39,16 @@
     channels))
 
 (defn whenever
-  "returns a closure that takes a call-back-fn which is executed when ever the topic message been broadcasted"
+  "returns a closure that takes a call-back-fn which is executed when ever the topic message is broadcasted"
   [topic]
+
+  (comment ;;example using whenever
+    (def when-ready (whenever :ready))
+
+    (when-ready (fn [msg]
+                  (prn "i'm ready " msg)))
+    (broadcast [:ready true]))
+  
   (let [topic-message (atom nil)]
     (on topic #(reset! topic-message %))
     (fn [call-back-fn]
