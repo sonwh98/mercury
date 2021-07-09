@@ -31,11 +31,26 @@
   (a/close! kill-chan))
 
 (defn on
+  "behaves like a javascript `on` event listener. takes a keyword topic and a callback fn. Whenever
+  the topic message is broadcasted, the callback fn is called. a subscription is returned that
+  can be passed to unsubscribe-to function to unregister the callback from recieving events"
   [topic call-back-fn]
-  (let [[topic-chan kill-channel :as subscription] (subscribe-to topic)]
+  (comment 
+    (def subscription (on :ready (fn [msg]
+                                   (prn "foo " msg))))
+    
+    (broadcast [:ready true])
+    (unsubscribe-to subscription))
+  
+  (let [[topic-chan kill-chan :as subscription] (subscribe-to topic)]
     (a/go-loop []
-      (call-back-fn (a/<! topic-chan))
-      (recur))
+      (let [[v ch] (a/alts! [topic-chan kill-chan])]
+        (if (= ch kill-chan)
+          (unsubscribe-to subscription)
+          (do
+            (when-not (nil? v)
+              (call-back-fn v))
+            (recur)))))
     subscription))
 
 (defn whenever
@@ -60,8 +75,8 @@
           (call-back-fn @topic-message)
           [subscription])
         [subscription (on topic (fn [this-topic-message]
-                                (reset! topic-message this-topic-message)
-                                (call-back-fn this-topic-message)))]))))
+                                  (reset! topic-message this-topic-message)
+                                  (call-back-fn this-topic-message)))]))))
 
 (defn postpone [execute-fn ms]
   (a/go (a/<! (a/timeout ms))
