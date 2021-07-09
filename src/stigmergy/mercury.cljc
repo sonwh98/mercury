@@ -32,11 +32,11 @@
 
 (defn on
   [topic call-back-fn]
-  (let [[topic-chan kill-channel :as descriptor] (subscribe-to topic)]
+  (let [[topic-chan kill-channel :as subscription] (subscribe-to topic)]
     (a/go-loop []
       (call-back-fn (a/<! topic-chan))
       (recur))
-    descriptor))
+    subscription))
 
 (defn whenever
   "returns a closure that takes a call-back-fn which is executed when ever the topic message is broadcasted"
@@ -45,18 +45,23 @@
   (comment ;;example using whenever
     (def when-ready (whenever :ready))
 
-    (when-ready (fn [msg]
-                  (prn "i'm ready " msg)))
-    (broadcast [:ready true]))
+    (def subscriptions (when-ready (fn [msg]
+                                   (prn "i'm ready " msg))))
+    (count d)
+    (map #(unsubscribe-to %) )
+    (broadcast [:ready true])
+    )
   
-  (let [topic-message (atom nil)]
-    (on topic #(reset! topic-message %))
+  (let [topic-message (atom nil)
+        subscription (on topic #(reset! topic-message %))]
     (fn [call-back-fn]
       (if @topic-message
-        (call-back-fn @topic-message)
-        (on topic (fn [this-topic-message]
-                    (reset! topic-message this-topic-message)
-                    (call-back-fn this-topic-message)))))))
+        (do
+          (call-back-fn @topic-message)
+          [subscription])
+        [subscription (on topic (fn [this-topic-message]
+                                (reset! topic-message this-topic-message)
+                                (call-back-fn this-topic-message)))]))))
 
 (defn postpone [execute-fn ms]
   (a/go (a/<! (a/timeout ms))
