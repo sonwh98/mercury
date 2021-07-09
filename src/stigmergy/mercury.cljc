@@ -17,13 +17,18 @@
 
 (defn subscribe-to
   [topic]
-  (let [channel (a/chan (a/dropping-buffer 10))
-        kill-channel (a/chan 1)]
-    (a/sub message-publication topic channel)
+  (let [topic-chan (a/chan (a/dropping-buffer 10))
+        kill-chan (a/chan 1)]
+    (a/sub message-publication topic topic-chan)
     (a/go
-      (a/<! kill-channel)
-      (unsubscribe channel topic))
-    [channel kill-channel]))
+      (a/<! kill-chan)
+      (unsubscribe topic-chan topic))
+    [topic-chan kill-chan]))
+
+(defn unsubscribe-to [[topic-chan kill-chan]]
+  (a/put! kill-chan true)
+  (a/close! topic-chan)
+  (a/close! kill-chan))
 
 (defn on
   [topic call-back-fn]
