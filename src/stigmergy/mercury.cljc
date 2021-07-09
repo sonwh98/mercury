@@ -32,11 +32,11 @@
 
 (defn on
   [topic call-back-fn]
-  (let [[topic-chan kill-channel :as channels] (subscribe-to topic)]
+  (let [[topic-chan kill-channel :as descriptor] (subscribe-to topic)]
     (a/go-loop []
       (call-back-fn (a/<! topic-chan))
       (recur))
-    channels))
+    descriptor))
 
 (defn whenever
   "returns a closure that takes a call-back-fn which is executed when ever the topic message is broadcasted"
