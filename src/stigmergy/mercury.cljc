@@ -54,18 +54,19 @@
     subscription))
 
 (defn whenever
-  "returns a closure that takes a call-back-fn which is executed when ever the topic message is broadcasted"
+  "returns a closure that takes a call-back-fn which is executed when ever the topic message is broadcasted.
+  the returned closure, returns a vector of subscriptions that can be passed to unsubscribe-to to remove event
+  listeners"
   [topic]
 
   (comment ;;example using whenever
     (def when-ready (whenever :ready))
 
     (def subscriptions (when-ready (fn [msg]
-                                   (prn "i'm ready " msg))))
-    (count d)
-    (map #(unsubscribe-to %) )
-    (broadcast [:ready true])
-    )
+                                     (prn "i'm ready " msg))))
+    (count subscriptions)
+    (map #(unsubscribe-to %) subscriptions)
+    (broadcast [:ready true]))
   
   (let [topic-message (atom nil)
         subscription (on topic #(reset! topic-message %))]
