@@ -37,7 +37,7 @@
   [topic call-back-fn]
   (comment 
     (def subscription (on :ready (fn [msg]
-                                   (prn "foo " msg))))
+                                   (prn  msg))))
     
     (broadcast [:ready true])
     (unsubscribe-to subscription))
