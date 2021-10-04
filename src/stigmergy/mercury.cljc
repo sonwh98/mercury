@@ -8,7 +8,10 @@
                                                   (if (vector? msg)
                                                     (first msg)
                                                     :default))))
-(defn broadcast [msg]
+(defn broadcast
+  "one to many broadcast to all listener of the msg. msg is a vector [topic msg-val] where topic is any value used
+  to tag the msg-val."
+  [msg]
   (a/put! message-bus msg))
 
 (defn unsubscribe
