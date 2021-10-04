@@ -3,7 +3,7 @@
 
 ;;a message is a vector of the form [topic value]
 ;;the topic can be any value but should be a keyword
-(defonce message-bus (a/chan 10))
+(defonce message-bus (a/chan 1024))
 (defonce message-publication (a/pub message-bus (fn [msg]
                                                   (if (vector? msg)
                                                     (first msg)
