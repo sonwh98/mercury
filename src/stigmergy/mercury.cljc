@@ -44,7 +44,8 @@
   
   (let [[topic-chan kill-chan :as subscription] (subscribe-to topic)]
     (a/go-loop []
-      (let [[v ch] (a/alts! [topic-chan kill-chan])]
+      (let [[v ch] (a/alts! [kill-chan topic-chan]
+                            :priority true)]
         (if (= ch kill-chan)
           (unsubscribe-to subscription)
           (do
