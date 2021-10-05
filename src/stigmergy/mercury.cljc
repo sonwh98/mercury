@@ -83,6 +83,8 @@
                                   (reset! topic-message this-topic-message)
                                   (call-back-fn this-topic-message)))]))))
 
-(defn postpone [execute-fn ms]
+(defn postpone
+  "postpone the execution of execute-fn for ms milliseconds"
+  [execute-fn ms]
   (a/go (a/<! (a/timeout ms))
         (execute-fn)))
